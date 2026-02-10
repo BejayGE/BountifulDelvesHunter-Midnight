@@ -4,7 +4,7 @@ BountifulDelvesHelperMinimapButton = LibStub("LibDBIcon-1.0", true)
 local BountifulDelvesHelperLDB = LibStub("LibDataBroker-1.1"):NewDataObject("BountifulDelvesHelper", {
 	type = "launcher",
 	text = "BountifulDelvesHelper",
-	icon = "Interface\\AddOns\\BountifulDelvesHelper\\minimap.tga",
+	icon = "Interface\\AddOns\\BountifulDelvesHelper-Midnight\\minimap.tga",
 	OnClick = function(self, btn)
         if btn == "LeftButton" or btn == "RightButton" then
 		    BountifulDelvesHelper:ToggleMainFrame()
@@ -16,7 +16,7 @@ local BountifulDelvesHelperLDB = LibStub("LibDataBroker-1.1"):NewDataObject("Bou
 			return
 		end
 
-		tooltip:AddLine("Bountiful Delves Helper", nil, nil, nil, nil)
+		tooltip:AddLine("Bountiful Delves Helper-Midnight", nil, nil, nil, nil)
 	end,
 })
 
