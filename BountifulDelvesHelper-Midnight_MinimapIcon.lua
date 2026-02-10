@@ -1,4 +1,4 @@
-local addon = LibStub("AceAddon-3.0"):NewAddon("BountifulDelvesHelper")
+local addon = LibStub("AceAddon-3.0"):NewAddon("BountifulDelvesHelper-Midnight")
 BountifulDelvesHelperMinimapButton = LibStub("LibDBIcon-1.0", true)
 
 local BountifulDelvesHelperLDB = LibStub("LibDataBroker-1.1"):NewDataObject("BountifulDelvesHelper", {
