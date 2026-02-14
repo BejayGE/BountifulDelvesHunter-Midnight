@@ -16,6 +16,7 @@ end
 
 SLASH_DELVES1 = "/delves"
 
+
 VOID_THEME = {
     bg_darkest        = {0.04, 0.02, 0.10, 0.97},
     bg_dark           = {0.08, 0.05, 0.18, 0.95},
@@ -119,13 +120,19 @@ waypoints = {
 }
 
 worldQuestsIDs = {
-    ["93013"] = "Special Assignment: Push back the Light",
-    ["92063"] = "Special Assignment: A Hunter's Regret",
-    ["92145"] = "Special Assignment: The Grand Magister's Drink",
-    ["91793"] = "Special Assignment: Into the Depths",
-    ["91796"] = "Special Assignment: Ours Once More!"		    
+    [93013] = {["saTitle"] = "Special Assignment: Push back the Light", ["saAreaPoid"] = 8524},
+    [92063] = {["saTitle"] = "Special Assignment: A Hunter's Regret", ["saAreaPoid"] = 8523},
+    [92145] = {["saTitle"] = "Special Assignment: The Grand Magister's Drink", ["saAreaPoid"] = 8471 },
+ --   [91793] = {["saTitle"] ="Special Assignment: Into the Depths", ["saAreaPoid"] = ,
+    [91796] = {["saTitle"] = "Special Assignment: Ours Once More!", ["saAreaPoid"] = 8612 },
+    [94795] = {["saTitle"] = "Special Assignment: Agents of the Shield", ["saAreaPoid"] = 8588 }
+--          = {["saTitle"] = "Special Assignment: Shade and Claw", ["saAreaPoid"] = 8695 }
 }
+legendRelics = C_QuestLine.GetQuestLineQuests(6015) -- {88993,88994,88995,88996,88997}
+saltherilsHaven = {90573,90574,90575,90576}
+preyQuests = C_QuestLine.GetQuestLineQuests(5945)
 
+	
 delveTiers = {
     { ["bountifulLootIlvl"] = 220, ["recommendedIlvl"] = 170, ["vaultIlvl"] = 233 },
     { ["bountifulLootIlvl"] = 224, ["recommendedIlvl"] = 187, ["vaultIlvl"] = 237 },
@@ -147,35 +154,60 @@ local cofferShardCurrencyID = 3310
 local sortBy = "zone"  -- "zone" oder "name"
 local sortDescending = false  -- false = A-Z, true = Z-A
 
+
+
 function GetCofferShardsWorldQuests(callback)
-    local result = {}
+      local result = {
+        worldQuests = {},
+        specialAssignments = {}
+    }
     -- Zone IDs Midnight
     local zonesToCheck = {2395, 2413, 2405, 2437, 2393,2424} 
     local scanned = 0
-
+    finished = 0
+		for questId in pairs(worldQuestsIDs) do
+			if C_QuestLog.IsQuestFlaggedCompleted(questId)  then 
+				finished = finished+1
+			end
+		end	
+	
     for _, zoneID in ipairs(zonesToCheck) do
         local quests = C_TaskQuest.GetQuestsOnMap(zoneID)
-        
-        if quests and #quests > 0 then
-            local mapInfo = C_Map.GetMapInfo(zoneID)
-            local zoneName = mapInfo and mapInfo.name or ("Zone " .. zoneID)
-            
---            print("[BDH] Scanne " .. zoneName .. " (" .. #quests .. " Quests)...")
+        local special_a = C_AreaPoiInfo.GetAreaPOIForMap(zoneID)
+		local mapInfo = C_Map.GetMapInfo(zoneID)
+        local zoneName = mapInfo and mapInfo.name or ("Zone " .. zoneID)
+		
+		if special_a and #special_a > 0 then		
+			for _, specialData in ipairs(special_a) do
+               for questId, data in pairs(worldQuestsIDs) do
+					 if specialData == data.saSreaPoid then
+						    table.insert(result.specialAssignments, {
+							questID = tonumber(questId),
+							zone = zoneName,
+							title   = data.saTitle,
+							zoneID  = zoneID,
+							poiID   = poiID
+							})
+					 end	
+			   end
+			end
+		end	
 
+        if quests and #quests > 0 then             
             for _, questData in ipairs(quests) do
                 local questID = questData.questID
 			
                 if questID and questID > 0 then
-                    if C_QuestLog.IsWorldQuest(questID) and not C_QuestLog.IsQuestFlaggedCompleted(questID) then
+                    if C_QuestLog.IsWorldQuest(questID) and zoneID == questData.mapID and not C_QuestLog.IsQuestFlaggedCompleted(questID) then					   
                         scanned = scanned + 1
                         local currencies = C_QuestLog.GetQuestRewardCurrencies(questID)
 
 						if currencies then
                             for _, currencyInfo in ipairs(currencies) do
                                 if currencyInfo.currencyID == 3310 or currencyInfo.name == "Coffer Key Shards" then
-                                    local title = C_TaskQuest.GetQuestInfoByQuestID(questID) or "Unbekannte Quest"
+                                    local title = C_TaskQuest.GetQuestInfoByQuestID(questID) or "Unknown Quest"
                                     local amount = currencyInfo.totalRewardAmount
-                                    table.insert(result, {
+                                    table.insert(result.worldQuests, {
                                         questID = questID, 
                                         title = title, 
                                         zone = zoneName, 
@@ -190,9 +222,7 @@ function GetCofferShardsWorldQuests(callback)
             end
         end
     end
-
-    print("[BDH] Scan done. " .. scanned .. " WQs checked, " .. #result .. " found with Shards reward.")
-    
+ 
     if callback and type(callback) == "function" then
         callback(result)
     end
@@ -211,9 +241,6 @@ local function setBackdropBorderColor(frame, color)
        frame:SetBackdropBorderColor(color[1], color[2], color[3], color[4])
     end
 end
--- ============================================================================
--- DrawCofferShardsWQGroup 
--- ============================================================================
 
 AceGUI = LibStub("AceGUI-3.0")
 isFrameVisible = false
@@ -365,7 +392,6 @@ function showUI()
             local lfgbutton1 = AceGUI:Create("Button")
             lfgbutton1:SetText("Start LFG")
             lfgbutton1:SetWidth(100)
---			BDH_VoidStyleButton(lfgbutton1)
 			lfgbutton1:SetCallback("OnClick", function()
 			openStartGroupFrame("delves")
 			BountifulDelvesHelperMainFrame:Hide()
@@ -592,13 +618,8 @@ function showUI()
 				AceGUI:Release(TTbutton)     
 				TTbutton = nil
 				end
-
-
-
                 guiCreateNewline(container, 1)
-            end	
-		
-		
+            end				
     end
 
 local function DrawCofferShardsWQGroup(container)
@@ -670,7 +691,7 @@ local function DrawCofferShardsWQGroup(container)
 
     -- Load WQs & Sort
     local wqs = GetCofferShardsWorldQuests()
-    table.sort(wqs, function(a, b)
+    table.sort(wqs.worldQuests, function(a, b)
         local aVal, bVal
         if sortBy == "name" then
             aVal, bVal = a.title, b.title
@@ -678,7 +699,7 @@ local function DrawCofferShardsWQGroup(container)
             aVal, bVal = a.zone, b.zone
         end
         if aVal == bVal then
-            return a.title < b.title  -- Sekundär Name
+            return a.title < b.title  
         end
         if sortDescending then
             return aVal > bVal
@@ -686,7 +707,7 @@ local function DrawCofferShardsWQGroup(container)
         return aVal < bVal
     end)
 
-    if #wqs == 0 then
+    if #wqs.worldQuests == 0 then
         local none = AceGUI:Create("Label")
         none:SetText("|cFFFF8040No active WQs with Coffer Key Shards as reward found.|r\nWait for daily refresh.")
         none:SetFullWidth(true)
@@ -724,7 +745,7 @@ local function DrawCofferShardsWQGroup(container)
         guiCreateNewline(container, 1)
 
         -- Rows
-        for _, wq in ipairs(wqs) do
+        for _, wq in ipairs(wqs.worldQuests) do
             local zoneLbl = AceGUI:Create("Label")
             zoneLbl:SetText(wq.zone)
 			BDH_VoidStyleLabel(zoneLbl, "secondary")
@@ -784,12 +805,143 @@ local function DrawCofferShardsWQGroup(container)
 			
         end
 
-            guiCreateNewline(container, 1)
-    end
+            guiCreateNewline(container, 5)
+		
+if #wqs.specialAssignments == 0 then
+        local noneSA = AceGUI:Create("Label")
+        noneSA:SetText("No active Special Assignment Quests.  You finished " .. finished .. " of 3 this week ")
+		BDH_VoidStyleLabel(noneSA, "highlight")
+		noneSA:SetFont(GameFontHighlightMedium:GetFont())
+        noneSA:SetFullWidth(true)
+        container:AddChild(noneSA)
+    else	
+		local specialA = AceGUI:Create("Label")
+        specialA:SetText("\124cff3088E0Special Assignments active. You finished " .. finished .. " of 3 this week ")
+		BDH_VoidStyleLabel(specialA, "dimmer")
+		specialA:SetFont(GameFontHighlightLarge:GetFont())
+        specialA:SetWidth(500)
+        container:AddChild(specialA)
+		
+		 guiCreateNewline(container, 5)
+		
+		local headerZone = AceGUI:Create("Label")
+        headerZone:SetText("Zone")
+		BDH_VoidStyleLabel(headerZone, "dim")
+		headerZone:SetFont(GameFontHighlightMedium:GetFont())
+        headerZone:SetWidth(150)
+        container:AddChild(headerZone)
 
+        local headerName = AceGUI:Create("Label")
+        headerName:SetText("Quest Name")
+		BDH_VoidStyleLabel(headerName, "dim")
+		headerName:SetFont(GameFontHighlightMedium:GetFont())
+        headerName:SetWidth(200)
+        container:AddChild(headerName)
+
+        local headerAmount = AceGUI:Create("Label")
+        headerAmount:SetText("Shards")
+		BDH_VoidStyleLabel(headerAmount, "dim")
+		headerAmount:SetFont(GameFontHighlightMedium:GetFont())
+        headerAmount:SetWidth(80)
+        container:AddChild(headerAmount)
+
+        local headerWP = AceGUI:Create("Label")
+        headerWP:SetText("Waypoints")
+		BDH_VoidStyleLabel(headerWP, "dim")
+		headerWP:SetFont(GameFontHighlightMedium:GetFont())
+        headerWP:SetWidth(100)
+        container:AddChild(headerWP)
+
+        guiCreateNewline(container, 1)
+		
+		 for _, wq in ipairs(wqs.specialAssignments) do
+            local zoneLbl = AceGUI:Create("Label")
+            zoneLbl:SetText(wq.zone)
+			BDH_VoidStyleLabel(zoneLbl, "secondary")
+			zoneLbl:SetFont(GameFontHighlightMedium:GetFont())
+			
+            zoneLbl:SetWidth(150)
+            container:AddChild(zoneLbl)
+
+            local nameLbl = AceGUI:Create("InteractiveLabel")
+            nameLbl:SetText("\124cffA335EE" .. wq.title .. "|r")
+			nameLbl:SetFont(GameFontHighlightMedium:GetFont())
+            nameLbl:SetWidth(200)
+			nameLbl:SetCallback("OnEnter", function(widget)
+                GameTooltip:SetOwner(widget.frame, "ANCHOR_TOPRIGHT")
+                GameTooltip:SetHyperlink("quest:" .. wq.questID)
+                GameTooltip:Show()
+            end)
+            nameLbl:SetCallback("OnLeave", function() GameTooltip:Hide() end)
+            nameLbl:SetCallback("OnClick", function()
+                ToggleWorldMap()
+                WorldMapFrame:SetMapID(wq.zoneID)
+                C_QuestLog.AddWorldQuestWatch(wq.questID)
+            end)
+            container:AddChild(nameLbl)
+			
+            local amountLbl = AceGUI:Create("Label")
+            amountLbl:SetText(wq.amount)
+            amountLbl:SetWidth(80)
+			BDH_VoidStyleLabel(amountLbl, "highlight")
+			amountLbl:SetFont(GameFontHighlightMedium:GetFont())
+            container:AddChild(amountLbl)
+
+            local wpBtn = AceGUI:Create("Button")
+            wpBtn:SetText("Waipoint")
+            wpBtn:SetWidth(100)
+            wpBtn:SetCallback("OnClick", function()
+			local x, y = C_TaskQuest.GetQuestLocation(wq.questID, wq.zoneID)        
+			if x and y then
+            setWaypointFromXY("default", wq.zoneID, x * 100, y * 100, wq.title)
+			end
+			end)
+            container:AddChild(wpBtn)
+			
+			local ttBtn = AceGUI:Create("Button")
+            ttBtn:SetText("TomTom")
+            ttBtn:SetWidth(100)
+            ttBtn:SetCallback("OnClick", function()
+			local x, y = C_TaskQuest.GetQuestLocation(wq.questID, wq.zoneID)        
+			if x and y then
+            setWaypointFromXY("tomtom", wq.zoneID, x * 100, y * 100, wq.title)
+			end
+			end)
+            container:AddChild(ttBtn)
+			if C_AddOns.IsAddOnLoaded("TomTom") == false then
+                    ttBtn:SetDisabled(true)
+            end
+			
+        end
+    end
+end
+		guiCreateNewline(container, 3)
+		
+		local otherLbl = AceGUI:Create("Label")
+        otherLbl:SetText("\124cff3088E0Other Coffer Key Shard Sources")
+        otherLbl:SetWidth(500)
+		--BDH_VoidStyleLabel(otherLbl, "dim")
+		otherLbl:SetFont(GameFontHighlightLarge:GetFont())
+        container:AddChild(otherLbl)
+		
+		local haradarQ = Count_FinishedQuests(legendRelics);
+		local eversongQ = Count_FinishedQuests(saltherilsHaven);
+			if eversongQ > 0 then
+				everDone = "You have finished this already this week."
+			else 
+				everDone = "You have not finished any this week."
+			end
+		local preyQ = Count_FinishedQuests(preyQuests)
+		
+		local haradarQLbl = AceGUI:Create("Label")
+        haradarQLbl:SetText("Haradar's Legend Relics quests. 100 each. You have finished |cffFFFFFF" .. haradarQ .. "|r of 7 quests.\nSaltheril's Haven weekly quest. 100 each. |cffFFFFFF" .. everDone .. "|r\nPrey Quests award 75 each. You have done |cffFFFFFF" .. preyQ .. "|r of 8 quests this week.\nWorld Map Rares award 50 each.\nWorld Map Treasures (Forgotten Amani Cache, etc.) 3-15 each. \nPreyseeker's Coffer Key Shard Satchels 50,60 or 80 depending on quality.\nBlue Fly-through stars may award 1-3")
+        haradarQLbl:SetWidth(600)
+		BDH_VoidStyleLabel(haradarQLbl, "dim")
+		haradarQLbl:SetFont(GameFontHighlightMedium:GetFont())
+        container:AddChild(haradarQLbl)
+					
     container:DoLayout()
 end
-
 
     function DrawTiersOverviewGroup(container)
         guiCreateNewline(container, 3)
@@ -879,7 +1031,6 @@ end
         if group == "tab1" then
             DrawDelvesGroup(container)
         elseif group == "tab2" then
-    --        DrawMemoryGroup(container)
             DrawTiersOverviewGroup(container)
         elseif group == "tab3" then
             DrawOptionsOverviewGroup(container)
@@ -889,7 +1040,7 @@ end
     BountifulDelvesHelperMainFrame = AceGUI:Create("Frame")
 	BountifulDelvesHelperMainFrame:EnableResize(false)
 	BountifulDelvesHelperMainFrame:SetTitle("\124cff3088ffBountiful Delves Helper Midnight")
-	BountifulDelvesHelperMainFrame:SetStatusText("\124cff3088ffBountiful Delves Helper Midnight - v1.3")
+	BountifulDelvesHelperMainFrame:SetStatusText("\124cff3088ffBountiful Delves Helper Midnight - v1.3.2")
 	BDH_VoidStyleFrame(BountifulDelvesHelperMainFrame, "darkest")
 	BountifulDelvesHelperMainFrame:SetCallback("OnClose", function(widget)
     isFrameVisible = false
@@ -957,7 +1108,8 @@ end
 		})	
         end
     end)
-    tab:SelectTab("tab1")
+    tab:SelectTab("tab4")
+	tab:SelectTab("tab1")
 
     BountifulDelvesHelperMainFrame:AddChild(tab)
 
@@ -1005,7 +1157,18 @@ function DrawOptionsOverviewGroup(container)
         label:SetWidth(600)
         container:AddChild(label)
 	
+end
 
+function Count_FinishedQuests (allQ)
+
+	local count = 0
+	local a = 0
+	for _,quest in ipairs(allQ) do
+		if (C_QuestLog.IsQuestFlaggedCompleted(quest)) then
+			count = count+1
+		end
+	end
+	return count
 end
 
 local function BDH_ApplyVoidBackdrop(frame, bg, border)
@@ -1095,7 +1258,6 @@ function BDH_VoidStyleLabel(widget, style)
 	
     fs:SetTextColor(unpack(color))
 end
-
 
 function triggerFrame()
     if not isFrameVisible then
