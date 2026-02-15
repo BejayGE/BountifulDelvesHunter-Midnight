@@ -16,7 +16,6 @@ end
 
 SLASH_DELVES1 = "/delves"
 
-
 VOID_THEME = {
     bg_darkest        = {0.04, 0.02, 0.10, 0.97},
     bg_dark           = {0.08, 0.05, 0.18, 0.95},
@@ -123,12 +122,12 @@ worldQuestsIDs = {
     [93013] = {["saTitle"] = "Special Assignment: Push back the Light", ["saAreaPoid"] = 8524},
     [92063] = {["saTitle"] = "Special Assignment: A Hunter's Regret", ["saAreaPoid"] = 8523},
     [92145] = {["saTitle"] = "Special Assignment: The Grand Magister's Drink", ["saAreaPoid"] = 8471 },
- --   [91793] = {["saTitle"] ="Special Assignment: Into the Depths", ["saAreaPoid"] = ,
+
     [91796] = {["saTitle"] = "Special Assignment: Ours Once More!", ["saAreaPoid"] = 8612 },
     [94795] = {["saTitle"] = "Special Assignment: Agents of the Shield", ["saAreaPoid"] = 8588 }
---          = {["saTitle"] = "Special Assignment: Shade and Claw", ["saAreaPoid"] = 8695 }
+
 }
-legendRelics = C_QuestLine.GetQuestLineQuests(6015) -- {88993,88994,88995,88996,88997}
+legendRelics = C_QuestLine.GetQuestLineQuests(6015) 
 saltherilsHaven = {90573,90574,90575,90576}
 preyQuests = C_QuestLine.GetQuestLineQuests(5945)
 
@@ -147,100 +146,9 @@ delveTiers = {
     { ["bountifulLootIlvl"] = 250, ["recommendedIlvl"] = 265, ["vaultIlvl"] = 259 }
 }
 
--- ============================================================================
---  World Quests with Coffer Key Shards (Currency 3310)
--- ============================================================================
 local cofferShardCurrencyID = 3310
-local sortBy = "zone"  -- "zone" oder "name"
-local sortDescending = false  -- false = A-Z, true = Z-A
-
-
-
-function GetCofferShardsWorldQuests(callback)
-      local result = {
-        worldQuests = {},
-        specialAssignments = {}
-    }
-    -- Zone IDs Midnight
-    local zonesToCheck = {2395, 2413, 2405, 2437, 2393,2424} 
-    local scanned = 0
-    finished = 0
-		for questId in pairs(worldQuestsIDs) do
-			if C_QuestLog.IsQuestFlaggedCompleted(questId)  then 
-				finished = finished+1
-			end
-		end	
-	
-    for _, zoneID in ipairs(zonesToCheck) do
-        local quests = C_TaskQuest.GetQuestsOnMap(zoneID)
-        local special_a = C_AreaPoiInfo.GetAreaPOIForMap(zoneID)
-		local mapInfo = C_Map.GetMapInfo(zoneID)
-        local zoneName = mapInfo and mapInfo.name or ("Zone " .. zoneID)
-		
-		if special_a and #special_a > 0 then		
-			for _, specialData in ipairs(special_a) do
-               for questId, data in pairs(worldQuestsIDs) do
-					 if specialData == data.saSreaPoid then
-						    table.insert(result.specialAssignments, {
-							questID = tonumber(questId),
-							zone = zoneName,
-							title   = data.saTitle,
-							zoneID  = zoneID,
-							poiID   = poiID
-							})
-					 end	
-			   end
-			end
-		end	
-
-        if quests and #quests > 0 then             
-            for _, questData in ipairs(quests) do
-                local questID = questData.questID
-			
-                if questID and questID > 0 then
-                    if C_QuestLog.IsWorldQuest(questID) and zoneID == questData.mapID and not C_QuestLog.IsQuestFlaggedCompleted(questID) then					   
-                        scanned = scanned + 1
-                        local currencies = C_QuestLog.GetQuestRewardCurrencies(questID)
-
-						if currencies then
-                            for _, currencyInfo in ipairs(currencies) do
-                                if currencyInfo.currencyID == 3310 or currencyInfo.name == "Coffer Key Shards" then
-                                    local title = C_TaskQuest.GetQuestInfoByQuestID(questID) or "Unknown Quest"
-                                    local amount = currencyInfo.totalRewardAmount
-                                    table.insert(result.worldQuests, {
-                                        questID = questID, 
-                                        title = title, 
-                                        zone = zoneName, 
-                                        zoneID = zoneID,
-										amount = amount
-                                    })                                    
-                                end
-                            end
-                        end
-                    end
-                end
-            end
-        end
-    end
- 
-    if callback and type(callback) == "function" then
-        callback(result)
-    end
-    
-    return result
-end
-
-local function setBackdropColor(frame, color)
-    if frame and frame.SetBackdropColor and color then
-       frame:SetBackdropColor(color[1], color[2], color[3], color[4])
-    end
-end
-
-local function setBackdropBorderColor(frame, color)
-    if frame and frame.SetBackdropBorderColor and color then
-       frame:SetBackdropBorderColor(color[1], color[2], color[3], color[4])
-    end
-end
+local sortBy = "zone"  
+local sortDescending = false 
 
 AceGUI = LibStub("AceGUI-3.0")
 isFrameVisible = false
@@ -253,7 +161,8 @@ function showUI()
 
     for delvePoiID, delveConfig in pairs(waypoints) do
         local delve = C_AreaPoiInfo.GetAreaPOIInfo(delveConfig["zone"], delvePoiID)
-
+		local storyVariant = GetStory(delve)
+		
         if delve ~= nil and delve["atlasName"] == "delves-bountiful" then
             local areaName = areaIDs[delveConfig["zone"]]
             local icon = C_UIWidgetManager.GetAllWidgetsBySetID(delve.iconWidgetSet)
@@ -263,9 +172,9 @@ function showUI()
                 isOvercharged = true
             end
 			if delveConfig["zone"] > 2392 then
-            Delves[delvePoiID] = { ["name"] = delve["name"], ["zone"] = areaName, ["overcharged"] = isOvercharged }
+            Delves[delvePoiID] = { ["name"] = delve["name"], ["zone"] = areaName, ["overcharged"] = isOvercharged, ["story"] = storyVariant }
 			else 
-			LegacyDelves[delvePoiID] = { ["name"] = delve["name"], ["zone"] = areaName, ["overcharged"] = isOvercharged }
+			LegacyDelves[delvePoiID] = { ["name"] = delve["name"], ["zone"] = areaName, ["overcharged"] = isOvercharged, ["story"] = storyVariant }
 			end
         end
     end
@@ -392,6 +301,7 @@ function showUI()
             local lfgbutton1 = AceGUI:Create("Button")
             lfgbutton1:SetText("Start LFG")
             lfgbutton1:SetWidth(100)
+--			BDH_VoidStyleButton(lfgbutton1)
 			lfgbutton1:SetCallback("OnClick", function()
 			openStartGroupFrame("delves")
 			BountifulDelvesHelperMainFrame:Hide()
@@ -489,8 +399,15 @@ function showUI()
                 if C_AddOns.IsAddOnLoaded("TomTom") == false then
                     button:SetDisabled(true)
                 end
-
-                guiCreateNewline(container, 1)
+								
+				local storyLbl = AceGUI:Create("Label")
+				storyLbl:SetText(delve["story"])
+				storyLbl:SetHeight(5)
+				BDH_VoidStyleLabel(storyLbl, "dim")
+                storyLbl:SetFont(GameFontHighlightSmall:GetFont())
+                storyLbl:SetFullWidth(true)
+			   container:AddChild(storyLbl)
+				
             end
         end
 		guiCreateNewline(container, 5)
@@ -618,11 +535,20 @@ function showUI()
 				AceGUI:Release(TTbutton)     
 				TTbutton = nil
 				end
-                guiCreateNewline(container, 1)
-            end				
+
+				local storyLbl = AceGUI:Create("Label")
+				storyLbl:SetText(delve["story"])
+				storyLbl:SetHeight(5)
+				BDH_VoidStyleLabel(storyLbl, "dim")
+                storyLbl:SetFont(GameFontHighlightSmall:GetFont())
+                storyLbl:SetFullWidth(true)
+				if TWW == true then 
+			    container:AddChild(storyLbl)
+				end
+            end		
     end
 
-local function DrawCofferShardsWQGroup(container)
+	local function DrawCofferShardsWQGroup(container)
     container:ReleaseChildren()
 
     -- Title
@@ -699,7 +625,7 @@ local function DrawCofferShardsWQGroup(container)
             aVal, bVal = a.zone, b.zone
         end
         if aVal == bVal then
-            return a.title < b.title  
+            return a.title < b.title 
         end
         if sortDescending then
             return aVal > bVal
@@ -807,7 +733,7 @@ local function DrawCofferShardsWQGroup(container)
 
             guiCreateNewline(container, 5)
 		
-if #wqs.specialAssignments == 0 then
+	if #wqs.specialAssignments == 0 then
         local noneSA = AceGUI:Create("Label")
         noneSA:SetText("No active Special Assignment Quests.  You finished " .. finished .. " of 3 this week ")
 		BDH_VoidStyleLabel(noneSA, "highlight")
@@ -908,19 +834,17 @@ if #wqs.specialAssignments == 0 then
 			end
 			end)
             container:AddChild(ttBtn)
-			if C_AddOns.IsAddOnLoaded("TomTom") == false then
+				if C_AddOns.IsAddOnLoaded("TomTom") == false then
                     ttBtn:SetDisabled(true)
-            end
-			
-        end
-    end
-end
+				end	
+			end
+		end
+	end
 		guiCreateNewline(container, 3)
 		
 		local otherLbl = AceGUI:Create("Label")
         otherLbl:SetText("\124cff3088E0Other Coffer Key Shard Sources")
         otherLbl:SetWidth(500)
-		--BDH_VoidStyleLabel(otherLbl, "dim")
 		otherLbl:SetFont(GameFontHighlightLarge:GetFont())
         container:AddChild(otherLbl)
 		
@@ -939,9 +863,12 @@ end
 		BDH_VoidStyleLabel(haradarQLbl, "dim")
 		haradarQLbl:SetFont(GameFontHighlightMedium:GetFont())
         container:AddChild(haradarQLbl)
-					
+		
+		
+			
     container:DoLayout()
-end
+	end
+
 
     function DrawTiersOverviewGroup(container)
         guiCreateNewline(container, 3)
@@ -1023,7 +950,181 @@ end
             container:AddChild(label)
         end
 
-        guiCreateNewline(container)
+        guiCreateNewline(container, 15)
+	
+        local nemesisLbl = AceGUI:Create("Label")
+        nemesisLbl:SetText("\124cff3088E0Seasonal Nemesis")
+        nemesisLbl:SetFont(GameFontHighlightLarge:GetFont())
+        nemesisLbl:SetWidth(300)
+        container:AddChild(nemesisLbl)
+		
+		local nemesisLbl = AceGUI:Create("Label")
+        nemesisLbl:SetText("Zone")
+        nemesisLbl:SetFont(GameFontHighlightLarge:GetFont())
+        nemesisLbl:SetWidth(200)
+        container:AddChild(nemesisLbl)
+				
+		local row = AceGUI:Create("SimpleGroup")
+		row:SetLayout("Manual") 
+		row:SetWidth(400)
+		row:SetHeight(80) 
+		container:AddChild(row)
+		
+		NullaeusIcon =  "Interface\\Icons\\Inv_120_raid_voidspire_hostgeneral"
+        local nemesisIcon = AceGUI:Create("Icon")
+		nemesisIcon:SetImage(NullaeusIcon)
+        nemesisIcon:SetImageSize(64, 64)
+        nemesisIcon:SetLabel("Nullaeus")
+		BDH_VoidStyleLabel(nemesisIcon, "highlight")
+        nemesisIcon:SetWidth(80)
+        row:AddChild(nemesisIcon)
+		nemesisIcon.frame:SetPoint("TOPLEFT", row.content, "TOPLEFT", 0, 0)
+		
+		nemesisQ = C_QuestLog.IsQuestFlaggedCompleted(93525)
+		nemesisInLog = C_QuestLog.IsOnQuest(93525) 
+		if nemesisQ then qText = "You have finished the associated Quest 'Nulling Nullaeus'. "
+		elseif nemesisInLog then 
+				qText = "You have the associated Quest in your Quest Log."
+		else qText = "You can grab the associated Quest at the Delvers HQ in Silvermoon."
+		end
+		
+		local nullaeussLbl = AceGUI:Create("Label")
+		nullaeussLbl.frame:ClearAllPoints()
+		nullaeussLbl.frame:SetPoint("TOPLEFT", nemesisIcon.image, "TOPRIGHT", 5, 0)
+        nullaeussLbl:SetText(qText)
+		BDH_VoidStyleLabel(nullaeussLbl, "primary")
+        nullaeussLbl:SetFont(GameFontHighlightMedium:GetFont())
+        nullaeussLbl:SetWidth(220)
+        row:AddChild(nullaeussLbl)
+		nullaeussLbl.frame:ClearAllPoints()
+		nullaeussLbl.frame:SetPoint("TOPLEFT", nemesisIcon.image, "TOPRIGHT", 5, 0)
+		
+		local zoneLbl = AceGUI:Create("Label")
+        zoneLbl:SetText("Voidstorm")
+		zoneLbl.frame:ClearAllPoints()
+		zoneLbl.frame:SetPoint("TOPLEFT", nullaeussLbl.frame, "TOPRIGHT", 10, 0)
+		BDH_VoidStyleLabel(zoneLbl, "dim")
+        zoneLbl:SetFont(GameFontHighlightMedium:GetFont())
+        zoneLbl:SetWidth(80)
+        row:AddChild(zoneLbl)
+		zoneLbl.frame:ClearAllPoints()
+		zoneLbl.frame:SetPoint("TOPLEFT", nemesisLbl.frame, "BOTTOMLEFT", 0, -8)
+		
+		local x, y = 61.2, 71.6
+		local nmZone = 2405
+		local nmBtn = AceGUI:Create("Button")
+            nmBtn:SetText("Waipoint")
+            nmBtn:SetWidth(100)
+            nmBtn:SetCallback("OnClick", function()
+            setWaypointFromXY("default", nmZone, x , y , "Torment's Rise")
+			end)
+            container:AddChild(nmBtn)
+			
+			local ttBtn = AceGUI:Create("Button")
+            ttBtn:SetText("TomTom")
+            ttBtn:SetWidth(100)
+            ttBtn:SetCallback("OnClick", function()        
+            setWaypointFromXY("tomtom", nmZone, x , y , "Torment's Rise")
+			end)
+            container:AddChild(ttBtn)
+				if C_AddOns.IsAddOnLoaded("TomTom") == false then
+                    ttBtn:SetDisabled(true)
+				end	
+		guiCreateNewline(container, 5)
+		local TroveLbl = AceGUI:Create("Label")
+        TroveLbl:SetText("\124cff3088E0Trovehunter's Bounty")
+        TroveLbl:SetFont(GameFontHighlightLarge:GetFont())
+        TroveLbl:SetWidth(300)
+        container:AddChild(TroveLbl)
+		
+		local row2 = AceGUI:Create("SimpleGroup")
+		row2:SetLayout("Manual") 
+		row2:SetWidth(400)
+		row2:SetHeight(80) 
+		container:AddChild(row2)
+		
+		local mapID = 254257
+		local mapItemId = 265714
+		local mapIcon = 1064187
+        local delverBountyIcon = AceGUI:Create("Icon")
+		delverBountyIcon:SetImage(mapIcon)
+        delverBountyIcon:SetImageSize(64, 64)
+		BDH_VoidStyleLabel(delverBountyIcon, "highlight")
+        delverBountyIcon:SetWidth(80)
+        row2:AddChild(delverBountyIcon)
+		delverBountyIcon.frame:SetPoint("TOPLEFT", row2.content, "TOPLEFT", 0, 0)
+		delverBountyIcon:SetCallback("OnEnter", function(widget)
+					GameTooltip:SetOwner(widget.frame, "ANCHOR_TOPRIGHT")
+					GameTooltip:SetHyperlink("item:" .. mapItemId)
+					GameTooltip:Show()
+            end)
+            delverBountyIcon:SetCallback("OnLeave", function() GameTooltip:Hide() end)
+			
+		delverBountyQ = C_QuestLog.IsQuestFlaggedCompleted(86371)
+		delverBountyinBag = C_Item.GetItemCount(mapID) 
+		delverBountyActive = C_UnitAuras.GetPlayerAuraBySpellID(473218)
+		if delverBountyQ then qText = "You have used a Trovehunter's Bounty this week"
+		elseif delverBountyinBag == 1 and not delverBountyActive then 
+				qText = "You have a Trovehunter's Bounty in Bag, don't forget to use it"
+		elseif delverBountyActive then qText = "Your Trovehunter's Bounty is active. Happy looting!"
+		end
+		
+		local delverBountyLbl = AceGUI:Create("Label")
+        delverBountyLbl:SetText(qText)
+		BDH_VoidStyleLabel(delverBountyLbl, "primary")
+        delverBountyLbl:SetFont(GameFontHighlightMedium:GetFont())
+        delverBountyLbl:SetWidth(320)
+        row2:AddChild(delverBountyLbl)
+		delverBountyLbl.frame:ClearAllPoints()
+		delverBountyLbl.frame:SetPoint("TOPLEFT", delverBountyIcon.image, "TOPRIGHT", 5, 0)
+		
+		guiCreateNewline(container, 5)
+		local beaconHeadLbl = AceGUI:Create("Label")
+        beaconHeadLbl:SetText("\124cff3088E0Beacon of Hope")
+        beaconHeadLbl:SetFont(GameFontHighlightLarge:GetFont())
+        beaconHeadLbl:SetWidth(300)
+        container:AddChild(beaconHeadLbl)
+		
+		local row3 = AceGUI:Create("SimpleGroup")
+		row3:SetLayout("Manual") 
+		row3:SetWidth(400)
+		row3:SetHeight(80) 
+		container:AddChild(row3)
+		
+		local beaconId = 253342
+		local beaconIcn = GetItemIcon(beaconId)
+        local beaconIcon = AceGUI:Create("Icon")
+		beaconIcon:SetImage(beaconIcn)
+        beaconIcon:SetImageSize(64, 64)
+		BDH_VoidStyleLabel(beaconIcon, "highlight")
+        beaconIcon:SetWidth(80)
+        row3:AddChild(beaconIcon)
+		beaconIcon.frame:SetPoint("TOPLEFT", row3.content, "TOPLEFT", 0, 0)
+				beaconIcon:SetCallback("OnEnter", function(widget)
+					GameTooltip:SetOwner(widget.frame, "ANCHOR_TOPRIGHT")
+					GameTooltip:SetHyperlink("item:" .. beaconId)
+					GameTooltip:Show()
+            end)
+            beaconIcon:SetCallback("OnLeave", function() GameTooltip:Hide() end)
+		
+		beaconPrice = 5000
+		beaconinBag = C_Item.GetItemCount(beaconId, includeBank) 
+		underCoin = C_CurrencyInfo.GetCurrencyInfo(2803)
+		if beaconinBag > 0 then qText = "You have a Beacon of Hope in your bags. Go get that Nemesis!"
+		elseif underCoin.quantity < 5000 then qText = "No Beacon of Hope in your backpack or bank and insufficient funds to buy one. \n(|cffE02E2E" .. underCoin.quantity .. "|r of |cffFFFFFF" .. beaconPrice .. ")"
+		else qText = "No Beacon of Hope in your backpack or bank, but you got enough Undercoins to buy one. \n(" .. underCoin.quantity .. " of |cffFFFFFF" .. beaconPrice .. ")"
+		end
+		
+		local beaconLbl = AceGUI:Create("Label")
+        beaconLbl:SetText(qText)
+		BDH_VoidStyleLabel(beaconLbl, "primary")
+        beaconLbl:SetFont(GameFontHighlightMedium:GetFont())
+        beaconLbl:SetWidth(320)
+        row3:AddChild(beaconLbl)
+		beaconLbl.frame:ClearAllPoints()
+		beaconLbl.frame:SetPoint("TOPLEFT", beaconIcon.image, "TOPRIGHT", 5, 0)
+		
+		
     end
 
     local function SelectGroup(container, event, group)
@@ -1040,12 +1141,12 @@ end
     BountifulDelvesHelperMainFrame = AceGUI:Create("Frame")
 	BountifulDelvesHelperMainFrame:EnableResize(false)
 	BountifulDelvesHelperMainFrame:SetTitle("\124cff3088ffBountiful Delves Helper Midnight")
-	BountifulDelvesHelperMainFrame:SetStatusText("\124cff3088ffBountiful Delves Helper Midnight - v1.3.2")
+	BountifulDelvesHelperMainFrame:SetStatusText("\124cff3088ffBountiful Delves Helper Midnight - v1.3.3")
 	BDH_VoidStyleFrame(BountifulDelvesHelperMainFrame, "darkest")
 	BountifulDelvesHelperMainFrame:SetCallback("OnClose", function(widget)
     isFrameVisible = false
 	end)
-	BountifulDelvesHelperMainFrame:SetHeight(600)
+	BountifulDelvesHelperMainFrame:SetHeight(700)
 	BountifulDelvesHelperMainFrame:SetLayout("Fill")
 
 -- Void-Theme 
@@ -1078,7 +1179,7 @@ end
             DrawDelvesGroup(container)
 			tab:SetTabs({
         { text = "Bountiful Delves", value = "tab1" },
-        { text = "\124cff3088ffTiers Overview",   value = "tab2" },
+        { text = "\124cff3088ffTiers and Info",   value = "tab2" },
         { text = "\124cff3088ffCoffer Shards WQs",value = "tab4" },   
         { text = "\124cff3088ffOptions",          value = "tab3" }
     })	
@@ -1086,7 +1187,7 @@ end
             DrawTiersOverviewGroup(container)
 			tab:SetTabs({
         { text = "\124cff3088ffBountiful Delves", value = "tab1" },
-        { text = "Tiers Overview",   value = "tab2" },
+        { text = "Tiers and Info",   value = "tab2" },
         { text = "\124cff3088ffCoffer Shards WQs",value = "tab4" },   
         { text = "\124cff3088ffOptions",          value = "tab3" }
 		})
@@ -1094,7 +1195,7 @@ end
             DrawCofferShardsWQGroup(container)
 			tab:SetTabs({
         { text = "\124cff3088ffBountiful Delves", value = "tab1" },
-        { text = "\124cff3088ffTiers Overview",   value = "tab2" },
+        { text = "\124cff3088ffTiers and Info",   value = "tab2" },
         { text = "Coffer Shards WQs",value = "tab4" },   
         { text = "\124cff3088ffOptions",          value = "tab3" }
 		})
@@ -1102,7 +1203,7 @@ end
             DrawOptionsOverviewGroup(container)
 			tab:SetTabs({
         { text = "\124cff3088ffBountiful Delves", value = "tab1" },
-        { text = "\124cff3088ffTiers Overview",   value = "tab2" },
+        { text = "\124cff3088ffTiers and Info",   value = "tab2" },
         { text = "\124cff3088ffCoffer Shards WQs",value = "tab4" },   
         { text = "Options",          value = "tab3" }
 		})	
@@ -1157,106 +1258,7 @@ function DrawOptionsOverviewGroup(container)
         label:SetWidth(600)
         container:AddChild(label)
 	
-end
 
-function Count_FinishedQuests (allQ)
-
-	local count = 0
-	local a = 0
-	for _,quest in ipairs(allQ) do
-		if (C_QuestLog.IsQuestFlaggedCompleted(quest)) then
-			count = count+1
-		end
-	end
-	return count
-end
-
-local function BDH_ApplyVoidBackdrop(frame, bg, border)
-    if not frame then return end
-
-    if not frame.bdhVoidBackdrop then
-        frame.bdhVoidBackdrop = CreateFrame("Frame", nil, frame, "BackdropTemplate")
-        frame.bdhVoidBackdrop:SetAllPoints(frame)
-        frame.bdhVoidBackdrop:SetFrameStrata(frame:GetFrameStrata())
-		frame.bdhVoidBackdrop:SetFrameLevel(math.max(frame:GetFrameLevel() - 2, 0))
-        frame.bdhVoidBackdrop:SetBackdrop({
-            bgFile = "Interface\\Buttons\\WHITE8x8",
-            edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
-            edgeSize = 12,
-            insets = { left = 2, right = 2, top = 2, bottom = 2 }
-        })
-    end
-
-    frame.bdhVoidBackdrop:SetBackdropColor(unpack(bg))
-    frame.bdhVoidBackdrop:SetBackdropBorderColor(unpack(border))
-end
-
-function BDH_VoidStyleButton(widget)
-    if not widget or not widget.frame then return end
-    local f = widget.frame
-
-    BDH_ApplyVoidBackdrop(f,
-        VOID_THEME.button_bg_normal,
-        VOID_THEME.button_border
-    )
-
-    -- Force readable text
-    local fs = f.text or f:GetFontString()
-    if fs then
-        fs:SetTextColor(1, 1, 1, 1)
-        fs:SetAlpha(1)
-    end
-
-    -- Kill Blizzard darkening
-    if f.GetNormalTexture then
-        local t = f:GetNormalTexture()
-        if t then t:SetVertexColor(1,1,1,1) end
-    end
-    if f.GetPushedTexture then
-        local t = f:GetPushedTexture()
-        if t then t:SetVertexColor(1,1,1,1) end
-    end
-    if f.GetHighlightTexture then
-        local t = f:GetHighlightTexture()
-        if t then t:SetVertexColor(1,1,1,0.2) end
-    end
-
-    -- Hover glow
-    f:HookScript("OnEnter", function()
-        f.bdhVoidBackdrop:SetBackdropColor(unpack(VOID_THEME.button_bg_active))
-        f.bdhVoidBackdrop:SetBackdropBorderColor(unpack(VOID_THEME.border_glow))
-    end)
-
-    f:HookScript("OnLeave", function()
-        f.bdhVoidBackdrop:SetBackdropColor(unpack(VOID_THEME.button_bg_normal))
-        f.bdhVoidBackdrop:SetBackdropBorderColor(unpack(VOID_THEME.button_border))
-    end)
-end
-
-
-function BDH_VoidStyleFrame(widget, level)
-    if not widget or not widget.frame then return end
-    local f = widget.frame
-
-    local bg = VOID_THEME.bg_dark
-    if level == "darkest" then bg = VOID_THEME.bg_darkest end
-    if level == "medium"  then bg = VOID_THEME.bg_medium  end
-    if level == "light"   then bg = VOID_THEME.bg_light   end
-
-    BDH_ApplyVoidBackdrop(f, bg, VOID_THEME.border_void)
-end
-
-function BDH_VoidStyleLabel(widget, style)
-    if not widget or not widget.label then return end
-    local fs = widget.label
-
-    local color = VOID_THEME.text_primary
-    if style == "secondary" then color = VOID_THEME.text_secondary end
-    if style == "dim"       then color = VOID_THEME.text_dim end
-    if style == "highlight" then color = VOID_THEME.text_highlight end
-	if style == "dimmer"    then color = VOID_THEME.button_border end
-	
-    fs:SetTextColor(unpack(color))
 end
 
 function triggerFrame()
