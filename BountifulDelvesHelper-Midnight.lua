@@ -122,10 +122,10 @@ worldQuestsIDs = {
     [93013] = {["saTitle"] = "Special Assignment: Push back the Light", ["saAreaPoid"] = 8524},
     [92063] = {["saTitle"] = "Special Assignment: A Hunter's Regret", ["saAreaPoid"] = 8523},
     [92145] = {["saTitle"] = "Special Assignment: The Grand Magister's Drink", ["saAreaPoid"] = 8471 },
-
+--   [91793] = {["saTitle"] ="Special Assignment: Into the Depths", ["saAreaPoid"] = ,
     [91796] = {["saTitle"] = "Special Assignment: Ours Once More!", ["saAreaPoid"] = 8612 },
-    [94795] = {["saTitle"] = "Special Assignment: Agents of the Shield", ["saAreaPoid"] = 8588 }
-
+    [94795] = {["saTitle"] = "Special Assignment: Agents of the Shield", ["saAreaPoid"] = 8588 },
+	[92139] = {["saTitle"] = "Special Assignment: Shade and Claw", ["saAreaPoid"] = 8695 }
 }
 legendRelics = C_QuestLine.GetQuestLineQuests(6015) 
 saltherilsHaven = {90573,90574,90575,90576}
