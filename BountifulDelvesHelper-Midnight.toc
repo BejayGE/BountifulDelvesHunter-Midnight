@@ -2,7 +2,7 @@
 ## Title: Bountiful Delves Helper - Midnight
 ## Notes: Bountiful Delves Helper - Midnight
 ## Author: Menelitos, BejayGE
-## Version: 1.3.3
+## Version: 1.3.4
 ## SavedVariablesPerCharacter: BountifulDelvesHelperDB, BountifulDelvesHelperIconDB
 # Libraries
 libs/Ace3/LibStub/LibStub.lua
