@@ -262,13 +262,13 @@ function GetCofferShardsWorldQuests(callback)
     for _, zoneID in ipairs(zonesToCheck) do
         local quests = C_TaskQuest.GetQuestsOnMap(zoneID)
         local special_a = C_AreaPoiInfo.GetAreaPOIForMap(zoneID)
-		local mapInfo = C_Map.GetMapInfo(zoneID)
+	local mapInfo = C_Map.GetMapInfo(zoneID)
         local zoneName = mapInfo and mapInfo.name or ("Zone " .. zoneID)
 		
 		if special_a and #special_a > 0 then		
 			for _, specialData in ipairs(special_a) do
                for questId, data in pairs(worldQuestsIDs) do					
-					 if specialData == data.saSreaPoid then
+					 if specialData == data.saAreaPoid then
 						    table.insert(result.specialAssignments, {
 							questID = tonumber(questId),
 							zone = zoneName,
