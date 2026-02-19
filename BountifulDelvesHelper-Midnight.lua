@@ -1,9 +1,12 @@
 BountifulDelvesHelper = BountifulDelvesHelper or {}
 
+version = "1.3.6"
+
 if not BountifulDelvesHelperDB then
     BountifulDelvesHelperDB = {
         highestDelveTier = nil,
-        waypointSystem = "default"
+        waypointSystem = "default",
+		TWW = false
     }
 end
 
@@ -121,11 +124,13 @@ waypoints = {
 worldQuestsIDs = {
     [93013] = {["saTitle"] = "Special Assignment: Push back the Light", ["saAreaPoid"] = 8524},
     [92063] = {["saTitle"] = "Special Assignment: A Hunter's Regret", ["saAreaPoid"] = 8523},
-    [92145] = {["saTitle"] = "Special Assignment: The Grand Magister's Drink", ["saAreaPoid"] = 8471 },
---   [91793] = {["saTitle"] ="Special Assignment: Into the Depths", ["saAreaPoid"] = ,
-    [91796] = {["saTitle"] = "Special Assignment: Ours Once More!", ["saAreaPoid"] = 8612 },
-    [94795] = {["saTitle"] = "Special Assignment: Agents of the Shield", ["saAreaPoid"] = 8588 },
-	[92139] = {["saTitle"] = "Special Assignment: Shade and Claw", ["saAreaPoid"] = 8695 }
+    [92145] = {["saTitle"] = "Special Assignment: The Grand Magister's Drink", ["saAreaPoid"] = 8684 },
+ --   [91793] = {["saTitle"] ="Special Assignment: Into the Depths", ["saAreaPoid"] = ,
+    [91796] = {["saTitle"] = "Special Assignment: Ours Once More!", ["saAreaPoid"] = 8692 },
+    [93244] = {["saTitle"] = "Special Assignment: Agents of the Shield", ["saAreaPoid"] = 8588 },
+	[92139] = {["saTitle"] = "Special Assignment: Shade and Claw", ["saAreaPoid"] = 8695 },
+	[91390] = {["saTitle"] = "Special Assignment: What Remains of a Temple Broken", ["saAreaPoid"] = 8611 },
+	[93438] = {["saTitle"] = "Special Assignment: Precision Excision", ["saAreaPoid"] = 8585 }
 }
 legendRelics = C_QuestLine.GetQuestLineQuests(6015) 
 saltherilsHaven = {90573,90574,90575,90576}
@@ -417,7 +422,7 @@ function showUI()
 		BDH_VoidStyleLabel(TWWHeader, "dim")
 		TWWHeader:SetFont(GameFontHighlightLarge:GetFont())
         TWWHeader:SetWidth(500)
-        if TWW == true then 
+        if BountifulDelvesHelperDB.TWW == true then 
 			container:AddChild(TWWHeader)
 		else
 			AceGUI:Release(TWWHeader)     
@@ -429,7 +434,7 @@ function showUI()
 			BDH_VoidStyleLabel(Linfo, "secondary")
 			Linfo:SetText("Please remember that these do not grant loot on current level")
 			Linfo:SetFont(GameFontHighlightMedium:GetFont())
-            if TWW == true then 
+            if BountifulDelvesHelperDB.TWW == true then 
 			container:AddChild(Linfo)
 			else
 			AceGUI:Release(Linfo)     
@@ -447,7 +452,7 @@ function showUI()
 			BDH_VoidStyleLabel(DName, "dim")
             DName:SetFont(GameFontHighlightSmall:GetFont())
             DName:SetWidth(220)
-			if TWW == true then 
+			if BountifulDelvesHelperDB.TWW == true then 
 			container:AddChild(DName)
 			else
 			AceGUI:Release(DName)     
@@ -459,7 +464,7 @@ function showUI()
 			BDH_VoidStyleLabel(DZone, "dim")
             DZone:SetFont(GameFontHighlightSmall:GetFont())
             DZone:SetWidth(120)
-            if TWW == true then 
+            if BountifulDelvesHelperDB.TWW == true then 
 			container:AddChild(DZone)
 			else
 			AceGUI:Release(DZone)     
@@ -489,7 +494,7 @@ function showUI()
                 LDelves:SetText(name)
                 LDelves:SetFont(GameFontHighlightMedium:GetFont())
                 LDelves:SetWidth(220)
-               	if TWW == true then 
+               	if BountifulDelvesHelperDB.TWW == true then 
 				container:AddChild(LDelves)
 				else
 				AceGUI:Release(LDelves)     
@@ -500,7 +505,7 @@ function showUI()
                 DelveZone:SetText(delve["zone"])
                 DelveZone:SetFont(GameFontHighlightMedium:GetFont())
                 DelveZone:SetWidth(120)
-				if TWW == true then 
+				if BountifulDelvesHelperDB.TWW == true then 
 				container:AddChild(DelveZone)
 				else
 				AceGUI:Release(DelveZone)     
@@ -513,7 +518,7 @@ function showUI()
                 WPbutton:SetCallback("OnClick", function()
                     setWaypoint("default", mapPoiID, delve["name"])
                 end)
-                if TWW == true then 
+                if BountifulDelvesHelperDB.TWW == true then 
 				container:AddChild(WPbutton)
 				else
 				AceGUI:Release(WPbutton)     
@@ -526,7 +531,7 @@ function showUI()
                 TTbutton:SetCallback("OnClick", function()
                     setWaypoint("tomtom", mapPoiID, delve["name"])
                 end)
-                if TWW == true then 
+                if BountifulDelvesHelperDB.TWW == true then 
 				container:AddChild(TTbutton)
 				if C_AddOns.IsAddOnLoaded("TomTom") == false then
                     TTbutton:SetDisabled(true)
@@ -542,7 +547,7 @@ function showUI()
 				BDH_VoidStyleLabel(storyLbl, "dim")
                 storyLbl:SetFont(GameFontHighlightSmall:GetFont())
                 storyLbl:SetFullWidth(true)
-				if TWW == true then 
+				if BountifulDelvesHelperDB.TWW == true then 
 			    container:AddChild(storyLbl)
 				end
             end		
@@ -761,15 +766,8 @@ function showUI()
         headerName:SetText("Quest Name")
 		BDH_VoidStyleLabel(headerName, "dim")
 		headerName:SetFont(GameFontHighlightMedium:GetFont())
-        headerName:SetWidth(200)
+        headerName:SetWidth(280)
         container:AddChild(headerName)
-
-        local headerAmount = AceGUI:Create("Label")
-        headerAmount:SetText("Shards")
-		BDH_VoidStyleLabel(headerAmount, "dim")
-		headerAmount:SetFont(GameFontHighlightMedium:GetFont())
-        headerAmount:SetWidth(80)
-        container:AddChild(headerAmount)
 
         local headerWP = AceGUI:Create("Label")
         headerWP:SetText("Waypoints")
@@ -792,7 +790,7 @@ function showUI()
             local nameLbl = AceGUI:Create("InteractiveLabel")
             nameLbl:SetText("\124cffA335EE" .. wq.title .. "|r")
 			nameLbl:SetFont(GameFontHighlightMedium:GetFont())
-            nameLbl:SetWidth(200)
+            nameLbl:SetWidth(280)
 			nameLbl:SetCallback("OnEnter", function(widget)
                 GameTooltip:SetOwner(widget.frame, "ANCHOR_TOPRIGHT")
                 GameTooltip:SetHyperlink("quest:" .. wq.questID)
@@ -805,21 +803,21 @@ function showUI()
                 C_QuestLog.AddWorldQuestWatch(wq.questID)
             end)
             container:AddChild(nameLbl)
-			
-            local amountLbl = AceGUI:Create("Label")
-            amountLbl:SetText(wq.amount)
-            amountLbl:SetWidth(80)
-			BDH_VoidStyleLabel(amountLbl, "highlight")
-			amountLbl:SetFont(GameFontHighlightMedium:GetFont())
-            container:AddChild(amountLbl)
 
             local wpBtn = AceGUI:Create("Button")
             wpBtn:SetText("Waipoint")
             wpBtn:SetWidth(100)
             wpBtn:SetCallback("OnClick", function()
-			local x, y = C_TaskQuest.GetQuestLocation(wq.questID, wq.zoneID)        
+
+			local areaLoc = C_AreaPoiInfo.GetAreaPOIInfo(wq.zoneID, wq.poiID)
+			if areaLoc then
+			local y = areaLoc.position.y
+			local x = areaLoc.position.x
+			else
+			local x, y = C_TaskQuest.GetQuestLocation(wq.questID, wq.zoneID)
 			if x and y then
             setWaypointFromXY("default", wq.zoneID, x * 100, y * 100, wq.title)
+			end
 			end
 			end)
             container:AddChild(wpBtn)
@@ -828,9 +826,16 @@ function showUI()
             ttBtn:SetText("TomTom")
             ttBtn:SetWidth(100)
             ttBtn:SetCallback("OnClick", function()
-			local x, y = C_TaskQuest.GetQuestLocation(wq.questID, wq.zoneID)        
+			local areaLoc = C_AreaPoiInfo.GetAreaPOIInfo(wq.zoneID, wq.poiID)
+			local y = areaLoc.position.y
+			local x = areaLoc.position.x   
+			if areaLoc then
+			local y = areaLoc.position.y
+			local x = areaLoc.position.x
+			else			
 			if x and y then
             setWaypointFromXY("tomtom", wq.zoneID, x * 100, y * 100, wq.title)
+			end
 			end
 			end)
             container:AddChild(ttBtn)
@@ -1062,11 +1067,13 @@ function showUI()
 			
 		delverBountyQ = C_QuestLog.IsQuestFlaggedCompleted(86371)
 		delverBountyinBag = C_Item.GetItemCount(mapID) 
-		delverBountyActive = C_UnitAuras.GetPlayerAuraBySpellID(473218)
-		if delverBountyQ then qText = "You have used a Trovehunter's Bounty this week"
-		elseif delverBountyinBag == 1 and not delverBountyActive then 
-				qText = "You have a Trovehunter's Bounty in Bag, don't forget to use it"
-		elseif delverBountyActive then qText = "Your Trovehunter's Bounty is active. Happy looting!"
+		delverBountyActive = C_UnitAuras.GetPlayerAuraBySpellID(1254631)
+		if delverBountyQ then qText = "You have looted a Trovehunter's Bounty this week"
+		else qText = "You can still get a Trovehunter's Bounty from any source this week."
+		end
+		if delverBountyinBag == 1 and not delverBountyActive then 
+				qText = qText .."\nYou have a Trovehunter's Bounty in Bag, don't forget to use it"
+		elseif delverBountyActive then qText = qText .. "\nYour Trovehunter's Bounty is active. Happy looting!"
 		end
 		
 		local delverBountyLbl = AceGUI:Create("Label")
@@ -1141,7 +1148,7 @@ function showUI()
     BountifulDelvesHelperMainFrame = AceGUI:Create("Frame")
 	BountifulDelvesHelperMainFrame:EnableResize(false)
 	BountifulDelvesHelperMainFrame:SetTitle("\124cff3088ffBountiful Delves Helper Midnight")
-	BountifulDelvesHelperMainFrame:SetStatusText("\124cff3088ffBountiful Delves Helper Midnight - v1.3.3")
+	BountifulDelvesHelperMainFrame:SetStatusText("\124cff3088ffBountiful Delves Helper Midnight - " .. version)
 	BDH_VoidStyleFrame(BountifulDelvesHelperMainFrame, "darkest")
 	BountifulDelvesHelperMainFrame:SetCallback("OnClose", function(widget)
     isFrameVisible = false
@@ -1149,7 +1156,6 @@ function showUI()
 	BountifulDelvesHelperMainFrame:SetHeight(700)
 	BountifulDelvesHelperMainFrame:SetLayout("Fill")
 
--- Void-Theme 
 	local frame = BountifulDelvesHelperMainFrame.frame
 
 	setBackdropColor(frame, VOID_THEME.bg_darkest)
@@ -1241,10 +1247,10 @@ function DrawOptionsOverviewGroup(container)
     button:SetText("Toggle TWW Delves")
     button:SetWidth(250)
     button:SetCallback("OnClick", function()
-        if TWW == true then
-           TWW = false
+        if BountifulDelvesHelperDB.TWW == true then
+           BountifulDelvesHelperDB.TWW = false
         else
-            TWW = true
+            BountifulDelvesHelperDB.TWW = true
         end
     end)
     container:AddChild(button)
