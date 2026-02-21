@@ -1,6 +1,6 @@
 BountifulDelvesHelper = BountifulDelvesHelper or {}
 
-version = "1.3.6"
+version = "1.3.7"
 
 if not BountifulDelvesHelperDB then
     BountifulDelvesHelperDB = {
@@ -124,7 +124,7 @@ waypoints = {
 worldQuestsIDs = {
     [93013] = {["saTitle"] = "Special Assignment: Push back the Light", ["saAreaPoid"] = 8524},
     [92063] = {["saTitle"] = "Special Assignment: A Hunter's Regret", ["saAreaPoid"] = 8523},
-    [92145] = {["saTitle"] = "Special Assignment: The Grand Magister's Drink", ["saAreaPoid"] = 8684 },
+    [92145] = {["saTitle"] = "Special Assignment: The Grand Magister's Drink", ["saAreaPoid"] = 8471 },
  --   [91793] = {["saTitle"] ="Special Assignment: Into the Depths", ["saAreaPoid"] = ,
     [91796] = {["saTitle"] = "Special Assignment: Ours Once More!", ["saAreaPoid"] = 8692 },
     [93244] = {["saTitle"] = "Special Assignment: Agents of the Shield", ["saAreaPoid"] = 8588 },
@@ -813,11 +813,10 @@ function showUI()
 			if areaLoc then
 			local y = areaLoc.position.y
 			local x = areaLoc.position.x
+			setWaypointFromXY("default", wq.zoneID, x * 100, y * 100, wq.title)
 			else
 			local x, y = C_TaskQuest.GetQuestLocation(wq.questID, wq.zoneID)
-			if x and y then
-            setWaypointFromXY("default", wq.zoneID, x * 100, y * 100, wq.title)
-			end
+			setWaypointFromXY("default", wq.zoneID, x * 100, y * 100, wq.title)
 			end
 			end)
             container:AddChild(wpBtn)
@@ -826,16 +825,14 @@ function showUI()
             ttBtn:SetText("TomTom")
             ttBtn:SetWidth(100)
             ttBtn:SetCallback("OnClick", function()
-			local areaLoc = C_AreaPoiInfo.GetAreaPOIInfo(wq.zoneID, wq.poiID)
-			local y = areaLoc.position.y
-			local x = areaLoc.position.x   
+			local areaLoc = C_AreaPoiInfo.GetAreaPOIInfo(wq.zoneID, wq.poiID)  
 			if areaLoc then
 			local y = areaLoc.position.y
 			local x = areaLoc.position.x
-			else			
-			if x and y then
-            setWaypointFromXY("tomtom", wq.zoneID, x * 100, y * 100, wq.title)
-			end
+			setWaypointFromXY("tomtom", wq.zoneID, x * 100, y * 100, wq.title)
+			else
+			local x, y = C_TaskQuest.GetQuestLocation(wq.questID, wq.zoneID)
+			setWaypointFromXY("tomtom", wq.zoneID, x * 100, y * 100, wq.title)
 			end
 			end)
             container:AddChild(ttBtn)
