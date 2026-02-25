@@ -126,7 +126,7 @@ worldQuestsIDs = {
     [92063] = {["saTitle"] = "Special Assignment: A Hunter's Regret", ["saAreaPoid"] = 8523},
     [92145] = {["saTitle"] = "Special Assignment: The Grand Magister's Drink", ["saAreaPoid"] = 8471 },
  --   [91793] = {["saTitle"] ="Special Assignment: Into the Depths", ["saAreaPoid"] = ,
-    [91796] = {["saTitle"] = "Special Assignment: Ours Once More!", ["saAreaPoid"] = 8692 },
+    [91796] = {["saTitle"] = "Special Assignment: Ours Once More!", ["saAreaPoid"] = 8612 },
     [93244] = {["saTitle"] = "Special Assignment: Agents of the Shield", ["saAreaPoid"] = 8588 },
 	[92139] = {["saTitle"] = "Special Assignment: Shade and Claw", ["saAreaPoid"] = 8695 },
 	[91390] = {["saTitle"] = "Special Assignment: What Remains of a Temple Broken", ["saAreaPoid"] = 8611 },
