@@ -1,0 +1,21 @@
+## Interface: 120001, 120000
+## Title: Bountiful Delves Hunter - Midnight
+## Notes: Bountiful Delves Hunter - Midnight
+## Author: BejayGE
+## Version: 1.3.8
+## SavedVariablesPerCharacter: BountifulDelvesHunterDB, BountifulDelvesHunterIconDB
+## IconTexture: Interface\AddOns\BountifulDelvesHunter-Midnight\minimap.tga
+# Libraries
+libs/Ace3/LibStub/LibStub.lua
+libs/Ace3/AceAddon-3.0/AceAddon-3.0.lua
+libs/Ace3/AceDB-3.0/AceDB-3.0.lua
+libs/Ace3/AceGUI-3.0/AceGUI-3.0.xml
+libs/LibDBIcon-1.0/CallbackHandler-1.0/CallbackHandler-1.0.lua
+libs/LibDBIcon-1.0/LibDataBroker-1.1/LibDataBroker-1.1.lua
+libs/LibDBIcon-1.0/LibDBIcon-1.0/LibDBIcon-1.0.lua
+
+# Main Files
+tables.lua
+BountifulDelvesHunter-Midnight.lua
+BountifulDelvesHunter-Midnight_Functions.lua
+BountifulDelvesHunter-Midnight_MinimapIcon.lua
