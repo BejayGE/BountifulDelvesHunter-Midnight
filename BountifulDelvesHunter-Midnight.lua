@@ -1,155 +1,27 @@
-BountifulDelvesHelper = BountifulDelvesHelper or {}
+BountifulDelvesHunter = BountifulDelvesHunter or {}
 
-version = "1.3.7"
+version = "1.3.8"
 
-if not BountifulDelvesHelperDB then
-    BountifulDelvesHelperDB = {
+if not BountifulDelvesHunterDB then
+    BountifulDelvesHunterDB = {
         highestDelveTier = nil,
         waypointSystem = "default",
 		TWW = false
     }
 end
 
-if not BountifulDelvesHelperIconDB then
-    BountifulDelvesHelperIconDB = {
+if not BountifulDelvesHunterIconDB then
+    BountifulDelvesHunterIconDB = {
         minimapPos = 140,
         hide = false,
     }
 end
 
-SLASH_DELVES1 = "/delves"
+SLASH_DELVES1 = "/BDH"
 
-VOID_THEME = {
-    bg_darkest        = {0.04, 0.02, 0.10, 0.97},
-    bg_dark           = {0.08, 0.05, 0.18, 0.95},
-    bg_medium         = {0.12, 0.08, 0.25, 0.90},
-    bg_light          = {0.18, 0.12, 0.35, 0.85},
-
-    border_void       = {0.55, 0.15, 0.85, 0.80},
-    border_glow       = {0.70, 0.40, 1.00, 0.70},
-    border_dim        = {0.35, 0.10, 0.55, 0.60},
-
-    text_primary      = {0.92, 0.88, 1.00, 1.00},
-    text_secondary    = {0.75, 0.70, 0.90, 1.00},
-    text_dim          = {0.60, 0.55, 0.75, 1.00},
-    text_highlight    = {0.95, 0.85, 1.00, 1.00},
-
-    button_bg_normal  = {0.20, 0.14, 0.38, 0.95},
-    button_bg_active  = {0.40, 0.25, 0.65, 1.00},
-    button_border     = {0.65, 0.30, 1.00, 0.75},
-
-    shards_amount     = {0.85, 0.70, 1.00, 1.00},
-    time_left         = {0.60, 0.85, 1.00, 1.00},
-}
-
-areaIDs = {
-    [2248] = "Isle Of Dorn",
-    [2215] = "Hallowfall",
-    [2214] = "Ringing Deeps",
-    [2255] = "Azj-Kahet",
-    [2346] = "Undermine",
-    [2371] = "K'aresh",
-    [2395] = "Eversong Woods",
-    [2413] = "Harandar",
-    [2405] = "Voidstorm",
-    [2437] = "Zul'Aman",
-    [2393] = "Silvermoon",
-	[2424] = "Isle of Quel'Danas"
-}
-
-waypoints = {
-    --Eversong Woods
-    -- "The Shadow Enclave"
-    [8438] = { ["zone"] = 2395, ["x"] = 45.0, ["y"] = 87.0 },
-    --Zul'Aman
-	-- "Atal'Aman"
-    [8444] = { ["zone"] = 2437, ["x"] = 63.5, ["y"] = 80.3 },
-    -- "Twilight Crypt"
-    [8442] = { ["zone"] = 2437, ["x"] = 25.2, ["y"] = 85.4 },
-    --Voidstorm
-    -- "Shadowguard Point"
-    [8432] = { ["zone"] = 2405, ["x"] = 36.9, ["y"] = 49.7 },
-    -- "Sunkiller Sanctum"
-    [8430] = { ["zone"] = 2405, ["x"] = 54.62, ["y"] = 48.43 },
-    --Harandar
-    -- "The Gulf of Memory"
-    [8436] = { ["zone"] = 2413, ["x"] = 36.0, ["y"] = 50.4 },
-    -- "The Grudge Pit"
-    [8434] = { ["zone"] = 2413, ["x"] = 70.1, ["y"] = 65.92 },
-    --Silvermoon
-    -- "Collegiate Calamity"
-    [8426] = { ["zone"] = 2393, ["x"] = 40.6, ["y"] = 54.6 },
-    -- "The Darkway"
-    [8439] = { ["zone"] = 2393, ["x"] = 31.9, ["y"] = 54.6 },
-	 --Isle of Dorn
-    -- "Earthcrawl Mines"
-    [7787] = { ["zone"] = 2248, ["x"] = 38.6, ["y"] = 74.0 },
-    -- "Fungal Folly"
-    [7779] = { ["zone"] = 2248, ["x"] = 52.03, ["y"] = 65.77 },
-    -- "Kriegval's Rest"
-    [7781] = { ["zone"] = 2248, ["x"] = 62.19, ["y"] = 42.70 },
-    --The Ringing Deeps
-    -- "The Waterworks"
-    [7782] = { ["zone"] = 2214, ["x"] = 42.15, ["y"] = 48.71 },
-    -- "The Dread Pit"
-    [7788] = { ["zone"] = 2214, ["x"] = 70.20, ["y"] = 37.3 },
-    -- "Excavation Site 9"
-    [8181] = { ["zone"] = 2214, ["x"] = 76.0, ["y"] = 96.50 },
-    --Hallowfall
-    -- "Mycomancer Cavern"
-    [7780] = { ["zone"] = 2215, ["x"] = 71.3, ["y"] = 31.2 },
-    -- "Nightfall Sanctum"
-    [7785] = { ["zone"] = 2215, ["x"] = 34.32, ["y"] = 47.43 },
-    -- "The Sinkhole"
-    [7783] = { ["zone"] = 2215, ["x"] = 50.6, ["y"] = 53.3 },
-    -- "Skittering Breach"
-    [7789] = { ["zone"] = 2215, ["x"] = 65.48, ["y"] = 61.74 },
-    --Azj-Kahet
-    -- "The Spiral Weave"
-    [7790] = { ["zone"] = 2255, ["x"] = 45.0, ["y"] = 19.0 },
-    -- "Tak-Rethan Abyss"
-    [7784] = { ["zone"] = 2255, ["x"] = 55.0, ["y"] = 73.92 },
-    -- "The Underkeep"
-    [7786] = { ["zone"] = 2255, ["x"] = 51.85, ["y"] = 88.30 },
-    --Undermine
-    -- "Sidestreet Sluice"
-    [8246] = { ["zone"] = 2346, ["x"] = 35.20, ["y"] = 52.80 },
-    -- "Demolition Dome"
-    [8246] = { ["zone"] = 2346, ["x"] = 50.30, ["y"] = 9.60 },
-    --K'aresh
-    -- "Archival Assault"
-    [8273] = { ["zone"] = 2371, ["x"] = 55.00, ["y"] = 48.00 }
-}
-
-worldQuestsIDs = {
-    [93013] = {["saTitle"] = "Special Assignment: Push back the Light", ["saAreaPoid"] = 8524},
-    [92063] = {["saTitle"] = "Special Assignment: A Hunter's Regret", ["saAreaPoid"] = 8523},
-    [92145] = {["saTitle"] = "Special Assignment: The Grand Magister's Drink", ["saAreaPoid"] = 8471 },
- --   [91793] = {["saTitle"] ="Special Assignment: Into the Depths", ["saAreaPoid"] = ,
-    [91796] = {["saTitle"] = "Special Assignment: Ours Once More!", ["saAreaPoid"] = 8612 },
-    [93244] = {["saTitle"] = "Special Assignment: Agents of the Shield", ["saAreaPoid"] = 8588 },
-	[92139] = {["saTitle"] = "Special Assignment: Shade and Claw", ["saAreaPoid"] = 8695 },
-	[91390] = {["saTitle"] = "Special Assignment: What Remains of a Temple Broken", ["saAreaPoid"] = 8611 },
-	[93438] = {["saTitle"] = "Special Assignment: Precision Excision", ["saAreaPoid"] = 8585 }
-}
 legendRelics = C_QuestLine.GetQuestLineQuests(6015) 
 saltherilsHaven = {90573,90574,90575,90576}
 preyQuests = C_QuestLine.GetQuestLineQuests(5945)
-
-	
-delveTiers = {
-    { ["bountifulLootIlvl"] = 220, ["recommendedIlvl"] = 170, ["vaultIlvl"] = 233 },
-    { ["bountifulLootIlvl"] = 224, ["recommendedIlvl"] = 187, ["vaultIlvl"] = 237 },
-    { ["bountifulLootIlvl"] = 227, ["recommendedIlvl"] = 200, ["vaultIlvl"] = 240 },
-    { ["bountifulLootIlvl"] = 230, ["recommendedIlvl"] = 213, ["vaultIlvl"] = 243 },
-    { ["bountifulLootIlvl"] = 233, ["recommendedIlvl"] = 222, ["vaultIlvl"] = 246 },
-    { ["bountifulLootIlvl"] = 237, ["recommendedIlvl"] = 229, ["vaultIlvl"] = 253 },
-    { ["bountifulLootIlvl"] = 246, ["recommendedIlvl"] = 235, ["vaultIlvl"] = 256 },
-    { ["bountifulLootIlvl"] = 250, ["recommendedIlvl"] = 244, ["vaultIlvl"] = 259 },
-    { ["bountifulLootIlvl"] = 250, ["recommendedIlvl"] = 250, ["vaultIlvl"] = 259 },
-    { ["bountifulLootIlvl"] = 250, ["recommendedIlvl"] = 257, ["vaultIlvl"] = 259 },
-    { ["bountifulLootIlvl"] = 250, ["recommendedIlvl"] = 265, ["vaultIlvl"] = 259 }
-}
 
 local cofferShardCurrencyID = 3310
 local sortBy = "zone"  
@@ -157,7 +29,7 @@ local sortDescending = false
 
 AceGUI = LibStub("AceGUI-3.0")
 isFrameVisible = false
-BountifulDelvesHelperMainFrame = {}
+BountifulDelvesHunterMainFrame = {}
 
 function showUI()
     Delves = {}
@@ -298,7 +170,7 @@ function showUI()
             button:SetWidth(100)
             button:SetCallback("OnClick", function()
                 C_AddOns.LoadAddOn("Blizzard_WeeklyRewards")
-                BountifulDelvesHelperMainFrame:Hide()
+                BountifulDelvesHunterMainFrame:Hide()
                 WeeklyRewardsFrame:Show()
             end)
             container:AddChild(button)
@@ -309,7 +181,7 @@ function showUI()
 --			BDH_VoidStyleButton(lfgbutton1)
 			lfgbutton1:SetCallback("OnClick", function()
 			openStartGroupFrame("delves")
-			BountifulDelvesHelperMainFrame:Hide()
+			BountifulDelvesHunterMainFrame:Hide()
 			end)
             container:AddChild(lfgbutton1)
 
@@ -326,7 +198,7 @@ function showUI()
 			lfgbutton2:SetWidth(100)
             lfgbutton2:SetCallback("OnClick", function()
                 openFindGroupFrame("delves")
-                BountifulDelvesHelperMainFrame:Hide()
+                BountifulDelvesHunterMainFrame:Hide()
             end)
             container:AddChild(lfgbutton2)
 
@@ -422,7 +294,7 @@ function showUI()
 		BDH_VoidStyleLabel(TWWHeader, "dim")
 		TWWHeader:SetFont(GameFontHighlightLarge:GetFont())
         TWWHeader:SetWidth(500)
-        if BountifulDelvesHelperDB.TWW == true then 
+        if BountifulDelvesHunterDB.TWW == true then 
 			container:AddChild(TWWHeader)
 		else
 			AceGUI:Release(TWWHeader)     
@@ -434,7 +306,7 @@ function showUI()
 			BDH_VoidStyleLabel(Linfo, "secondary")
 			Linfo:SetText("Please remember that these do not grant loot on current level")
 			Linfo:SetFont(GameFontHighlightMedium:GetFont())
-            if BountifulDelvesHelperDB.TWW == true then 
+            if BountifulDelvesHunterDB.TWW == true then 
 			container:AddChild(Linfo)
 			else
 			AceGUI:Release(Linfo)     
@@ -452,7 +324,7 @@ function showUI()
 			BDH_VoidStyleLabel(DName, "dim")
             DName:SetFont(GameFontHighlightSmall:GetFont())
             DName:SetWidth(220)
-			if BountifulDelvesHelperDB.TWW == true then 
+			if BountifulDelvesHunterDB.TWW == true then 
 			container:AddChild(DName)
 			else
 			AceGUI:Release(DName)     
@@ -464,7 +336,7 @@ function showUI()
 			BDH_VoidStyleLabel(DZone, "dim")
             DZone:SetFont(GameFontHighlightSmall:GetFont())
             DZone:SetWidth(120)
-            if BountifulDelvesHelperDB.TWW == true then 
+            if BountifulDelvesHunterDB.TWW == true then 
 			container:AddChild(DZone)
 			else
 			AceGUI:Release(DZone)     
@@ -494,7 +366,7 @@ function showUI()
                 LDelves:SetText(name)
                 LDelves:SetFont(GameFontHighlightMedium:GetFont())
                 LDelves:SetWidth(220)
-               	if BountifulDelvesHelperDB.TWW == true then 
+               	if BountifulDelvesHunterDB.TWW == true then 
 				container:AddChild(LDelves)
 				else
 				AceGUI:Release(LDelves)     
@@ -505,7 +377,7 @@ function showUI()
                 DelveZone:SetText(delve["zone"])
                 DelveZone:SetFont(GameFontHighlightMedium:GetFont())
                 DelveZone:SetWidth(120)
-				if BountifulDelvesHelperDB.TWW == true then 
+				if BountifulDelvesHunterDB.TWW == true then 
 				container:AddChild(DelveZone)
 				else
 				AceGUI:Release(DelveZone)     
@@ -518,7 +390,7 @@ function showUI()
                 WPbutton:SetCallback("OnClick", function()
                     setWaypoint("default", mapPoiID, delve["name"])
                 end)
-                if BountifulDelvesHelperDB.TWW == true then 
+                if BountifulDelvesHunterDB.TWW == true then 
 				container:AddChild(WPbutton)
 				else
 				AceGUI:Release(WPbutton)     
@@ -531,7 +403,7 @@ function showUI()
                 TTbutton:SetCallback("OnClick", function()
                     setWaypoint("tomtom", mapPoiID, delve["name"])
                 end)
-                if BountifulDelvesHelperDB.TWW == true then 
+                if BountifulDelvesHunterDB.TWW == true then 
 				container:AddChild(TTbutton)
 				if C_AddOns.IsAddOnLoaded("TomTom") == false then
                     TTbutton:SetDisabled(true)
@@ -547,7 +419,7 @@ function showUI()
 				BDH_VoidStyleLabel(storyLbl, "dim")
                 storyLbl:SetFont(GameFontHighlightSmall:GetFont())
                 storyLbl:SetFullWidth(true)
-				if BountifulDelvesHelperDB.TWW == true then 
+				if BountifulDelvesHunterDB.TWW == true then 
 			    container:AddChild(storyLbl)
 				end
             end		
@@ -987,7 +859,7 @@ function showUI()
 		if nemesisQ then qText = "You have finished the associated Quest 'Nulling Nullaeus'. "
 		elseif nemesisInLog then 
 				qText = "You have the associated Quest in your Quest Log."
-		else qText = "You can grab the associated Quest at the Delvers HQ in Silvermoon."
+		else qText = "You have not done the associated Quest and can grab it at the Delvers HQ in Silvermoon, if you are eligible."
 		end
 		
 		local nullaeussLbl = AceGUI:Create("Label")
@@ -1142,18 +1014,18 @@ function showUI()
         end
     end
 
-    BountifulDelvesHelperMainFrame = AceGUI:Create("Frame")
-	BountifulDelvesHelperMainFrame:EnableResize(false)
-	BountifulDelvesHelperMainFrame:SetTitle("\124cff3088ffBountiful Delves Helper Midnight")
-	BountifulDelvesHelperMainFrame:SetStatusText("\124cff3088ffBountiful Delves Helper Midnight - " .. version)
-	BDH_VoidStyleFrame(BountifulDelvesHelperMainFrame, "darkest")
-	BountifulDelvesHelperMainFrame:SetCallback("OnClose", function(widget)
+    BountifulDelvesHunterMainFrame = AceGUI:Create("Frame")
+	BountifulDelvesHunterMainFrame:EnableResize(false)
+	BountifulDelvesHunterMainFrame:SetTitle("\124cff3088ffBountiful Delves Hunter Midnight")
+	BountifulDelvesHunterMainFrame:SetStatusText("\124cff3088ffBountiful Delves Hunter Midnight - " .. version)
+	BDH_VoidStyleFrame(BountifulDelvesHunterMainFrame, "darkest")
+	BountifulDelvesHunterMainFrame:SetCallback("OnClose", function(widget)
     isFrameVisible = false
 	end)
-	BountifulDelvesHelperMainFrame:SetHeight(700)
-	BountifulDelvesHelperMainFrame:SetLayout("Fill")
+	BountifulDelvesHunterMainFrame:SetHeight(700)
+	BountifulDelvesHunterMainFrame:SetLayout("Fill")
 
-	local frame = BountifulDelvesHelperMainFrame.frame
+	local frame = BountifulDelvesHunterMainFrame.frame
 
 	setBackdropColor(frame, VOID_THEME.bg_darkest)
 	setBackdropBorderColor(frame, VOID_THEME.border_glow)
@@ -1215,10 +1087,10 @@ function showUI()
     tab:SelectTab("tab4")
 	tab:SelectTab("tab1")
 
-    BountifulDelvesHelperMainFrame:AddChild(tab)
+    BountifulDelvesHunterMainFrame:AddChild(tab)
 
-    _G["BountifulDelvesHelperGlobalFrame"] = BountifulDelvesHelperMainFrame.frame
-    tinsert(UISpecialFrames, "BountifulDelvesHelperGlobalFrame")
+    _G["BountifulDelvesHunterGlobalFrame"] = BountifulDelvesHunterMainFrame.frame
+    tinsert(UISpecialFrames, "BountifulDelvesHunterGlobalFrame")
 end
 
 function DrawOptionsOverviewGroup(container)
@@ -1228,12 +1100,12 @@ function DrawOptionsOverviewGroup(container)
     button:SetText("Toggle Minimap Button")
     button:SetWidth(250)
     button:SetCallback("OnClick", function()
-        if BountifulDelvesHelperIconDB.hide == true then
-            BountifulDelvesHelperMinimapButton:Show("BountifulDelvesHelper")
-            BountifulDelvesHelperIconDB.hide = false
+        if BountifulDelvesHunterIconDB.hide == true then
+            BountifulDelvesHunterMinimapButton:Show("BountifulDelvesHunter")
+            BountifulDelvesHunterIconDB.hide = false
         else
-            BountifulDelvesHelperMinimapButton:Hide("BountifulDelvesHelper")
-            BountifulDelvesHelperIconDB.hide = true
+            BountifulDelvesHunterMinimapButton:Hide("BountifulDelvesHunter")
+            BountifulDelvesHunterIconDB.hide = true
         end
     end)
     container:AddChild(button)
@@ -1244,10 +1116,10 @@ function DrawOptionsOverviewGroup(container)
     button:SetText("Toggle TWW Delves")
     button:SetWidth(250)
     button:SetCallback("OnClick", function()
-        if BountifulDelvesHelperDB.TWW == true then
-           BountifulDelvesHelperDB.TWW = false
+        if BountifulDelvesHunterDB.TWW == true then
+           BountifulDelvesHunterDB.TWW = false
         else
-            BountifulDelvesHelperDB.TWW = true
+            BountifulDelvesHunterDB.TWW = true
         end
     end)
     container:AddChild(button)
@@ -1255,7 +1127,7 @@ function DrawOptionsOverviewGroup(container)
 	guiCreateNewline(container, 3)
 	
 	 local label = AceGUI:Create("Label")
-        label:SetText("This Addon is based on the original Bountiful Delves Helper by Menelitos. I loved that Addon and used it all the time, but at some point, it was no longer updated. I kept it current with line by line changes in TWW and Pre-Patch, but that was obviously not an option for Midnight. I kept some code, I changed some code, I created new code for this. \nKudos to Menelitos for the original idea. \n\nI tried to add a little Midnight flavor to this with the color theme, hope you like it.")
+        label:SetText("This Addon is based on the original Bountiful Delves Helper by Menelitos. I loved that Addon and used it all the time, but at some point, it was no longer updated. I kept it current with line by line changes in TWW and Pre-Patch, but that was obviously not an option for Midnight. \nKudos to Menelitos for the original idea and general feel of the addon. \n\nI tried to add a little Midnight flavor to this with the color theme, hope you like it.")
 		BDH_VoidStyleLabel(label, "dimmer")
         label:SetFont(GameFontHighlightMedium:GetFont())
         label:SetWidth(600)
@@ -1269,22 +1141,22 @@ function triggerFrame()
         showUI()
         isFrameVisible = true
     else
-        BountifulDelvesHelperMainFrame:Hide()
+        BountifulDelvesHunterMainFrame:Hide()
         isFrameVisible = false
     end
 end
 
-function BountifulDelvesHelper:ToggleMainFrame()
+function BountifulDelvesHunter:ToggleMainFrame()
     triggerFrame()
 end
 
-SlashCmdList["DELVES"] = function(arg1)
-    if arg1 == "hide" and BountifulDelvesHelperIconDB["hide"] == false or BountifulDelvesHelperIconDB["hide"] == nil then
-        BountifulDelvesHelperIconDB["hide"] = true
-        print("[Bountiful Delves Helper] Minimap icon hidden, use /reload for it to take effect.")
-    elseif arg1 == "show" and BountifulDelvesHelperIconDB["hide"] == true then
-        BountifulDelvesHelperIconDB["hide"] = false
-        print("[Bountiful Delves Helper] Minimap icon shown, use /reload for it to take effect.")
+SlashCmdList["BDH"] = function(arg1)
+    if arg1 == "hide" and BountifulDelvesHunterIconDB["hide"] == false or BountifulDelvesHunterIconDB["hide"] == nil then
+        BountifulDelvesHunterIconDB["hide"] = true
+        print("[Bountiful Delves Hunter] Minimap icon hidden, use /reload for it to take effect.")
+    elseif arg1 == "show" and BountifulDelvesHunterIconDB["hide"] == true then
+        BountifulDelvesHunterIconDB["hide"] = false
+        print("[Bountiful Delves Hunter] Minimap icon shown, use /reload for it to take effect.")
     elseif arg1 == "" then
         if not isFrameVisible then
             showUI()
@@ -1293,7 +1165,7 @@ SlashCmdList["DELVES"] = function(arg1)
     end
 end
 
-local eventListenerFrame = CreateFrame("Frame", "BountifulDelvesHelperListenerFrame")
+local eventListenerFrame = CreateFrame("Frame", "BountifulDelvesHunterListenerFrame")
 local function eventHandler(self, event, arg1)
     if event == "GOSSIP_SHOW" and arg1 == "delves-difficulty-picker" then
         local highestTier = 1
